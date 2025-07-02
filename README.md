@@ -46,6 +46,9 @@ The application features:
 ## 3. Architecture Overview
 
 
+- *AWS deployment with ALB, EC2 instances, and Redis*
+![aws drawio (1)](https://github.com/user-attachments/assets/ed10ff62-9450-41bd-a539-a1f059f68769)
+
 - *Local Docker Compose setup with nginx load balancer*
 ```mermaid
 graph TD
@@ -89,7 +92,7 @@ graph TD
     class Docker docker
 
 ```
-- *AWS deployment with ALB, EC2 instances, and Redis*
+
 - *Data flow diagrams for WebSocket messages and Redis pub/sub*
 ```mermaid
 sequenceDiagram
