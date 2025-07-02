@@ -80,7 +80,7 @@ graph TD
     classDef loadBalancer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
     classDef appServer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
     classDef redis fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
-    classDef docker fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#000
+    classDef docker fill:none,stroke:#0db7ed,stroke-width:3px,color:#fff
     
     class U,B userStyle
     class N loadBalancer
