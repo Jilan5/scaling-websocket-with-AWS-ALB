@@ -1,4 +1,6 @@
-# scaling-websocket-with-AWS-ALB
+# WebSocket Scaling with AWS Application Load Balancer Tutorial
+
+
 
 ## 1. Introduction
 
@@ -48,7 +50,6 @@ The application features:
 - *Session affinity and load balancing strategy*
 
 ### 3.1 Local Architecture
-
 
 ### 3.2 AWS Architecture
 
@@ -182,13 +183,31 @@ Note down the following values:
 
 ### 5.5 Prepare Application Files
 
-Since you already have the application archive prepared, copy it to the Pulumi project directory:
+First, update the Redis host configuration in your docker-compose files:
 
 ```bash
-# Copy application archive to Pulumi directory
-cp ../tmp/chat-app.tar.gz ./
+# Navigate back to the application directory
+cd /home/jilan/poridhi/ws-todo
+
+# Update Redis host in docker-compose-app1.yml with actual Redis private IP from pulumi output
+sed -i 's/REDIS_HOST=.*/REDIS_HOST=<REDIS_PRIVATE_IP>/' tmp/chat-app/docker-compose-app1.yml
+
+# Update Redis host in docker-compose-app2.yml with actual Redis private IP  
+sed -i 's/REDIS_HOST=.*/REDIS_HOST=<REDIS_PRIVATE_IP>/' tmp/chat-app/docker-compose-app2.yml
 ```
 
+**Note:** Replace `<REDIS_PRIVATE_IP>` with the actual Redis endpoint from your `pulumi stack output`.
+
+Now create the application archive:
+
+```bash
+# Create archive with updated configuration
+tar -czf chat-app.tar.gz -C tmp chat-app/
+
+# Copy application archive to Pulumi directory
+cp chat-app.tar.gz pulumi-infrastructure/
+cd pulumi-infrastructure
+```
 ### 5.6 Deploy to First EC2 Instance
 
 Replace the IP addresses below with your actual outputs from `pulumi stack output`:
@@ -203,9 +222,6 @@ ssh -i scaling-key.pem ubuntu@<APP_SERVER_1_IP>
 # Extract and deploy
 tar -xzf chat-app.tar.gz
 cd chat-app
-
-# Update Redis IP in docker-compose-app1.yml with actual Redis private IP
-sed -i 's/REDIS_HOST=.*/REDIS_HOST=<REDIS_PRIVATE_IP>/' docker-compose-app1.yml
 
 # Start the application
 docker compose -f docker-compose-app1.yml up -d
@@ -230,8 +246,6 @@ ssh -i scaling-key.pem ubuntu@<APP_SERVER_2_IP>
 tar -xzf chat-app.tar.gz
 cd chat-app
 
-# Update Redis IP in docker-compose-app2.yml with actual Redis private IP
-sed -i 's/REDIS_HOST=.*/REDIS_HOST=<REDIS_PRIVATE_IP>/' docker-compose-app2.yml
 
 # Start the application
 docker compose -f docker-compose-app2.yml up -d
