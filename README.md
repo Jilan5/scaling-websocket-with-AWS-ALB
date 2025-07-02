@@ -46,8 +46,9 @@ The application features:
 ## 3. Architecture Overview
 
 
-- *AWS deployment with ALB, EC2 instances, and Redis*
-![aws drawio (1)](https://github.com/user-attachments/assets/ed10ff62-9450-41bd-a539-a1f059f68769)
+- **AWS deployment with ALB, EC2 instances, and Redis**
+![Uploading aws.drawio (1).svg…](https://github.com/Jilan5/scaling-websocket-with-AWS-ALB/blob/main/aws.drawio%20(1).svg)
+
 
 - *Local Docker Compose setup with nginx load balancer*
 ```mermaid
