@@ -5,7 +5,8 @@
 ## 1. Introduction
 
 This tutorial demonstrates how to scale a real-time WebSocket application using FastAPI, Redis pub/sub, and AWS Application Load Balancer (ALB). We'll build a todo application with chat functionality that can handle multiple users across multiple server instances while maintaining real-time communication and session persistence.
-![image](https://github.com/user-attachments/assets/61a21455-dd7e-43ad-8c6d-04385353922f)
+![image](https://github.com/user-attachments/assets/899bdbef-ad21-494d-aee4-1fd74b6a38c5)
+
 
 The application features:
 - **WebSocket connections** for real-time chat and todo updates
@@ -305,16 +306,27 @@ http://<ALB_DNS_NAME>
    - Create todos in different browser sessions
    - Verify todos persist per client ID
    - Test todo operations (add, complete, delete)
+![Screenshot from 2025-07-02 13-48-36](https://github.com/user-attachments/assets/a0c7adf7-5985-47f2-833d-7f594dbf2262)
 
 2. **Chat Functionality:**
    - Send messages from multiple clients
    - Verify real-time message broadcasting
    - Test with clients connected to different servers
+![Screenshot from 2025-07-02 13-46-21](https://github.com/user-attachments/assets/31b19f44-59b2-42f6-8775-9ab8b8d63eef)
+![Screenshot from 2025-07-02 13-46-33](https://github.com/user-attachments/assets/de21b197-42a2-43df-a643-f67977db4ce1)
+![Screenshot from 2025-07-02 13-46-54](https://github.com/user-attachments/assets/9033f40c-ac69-40bf-8c34-2266a91b684c)
+![Screenshot from 2025-07-02 13-47-17](https://github.com/user-attachments/assets/fa720e44-6003-4271-87fd-aa27f4085688)
+
+
 
 3. **Scaling Behavior:**
    - Monitor which server handles each request
+![Screenshot from 2025-07-02 13-49-24](https://github.com/user-attachments/assets/90e3b66a-fdf8-43fd-9a25-b53b4d09435b)
    - Verify session affinity works correctly
    - Test reconnection behavior
+
+![Screenshot from 2025-07-02 13-47-51](https://github.com/user-attachments/assets/07b14c04-533c-496f-ab04-c98f0f995562)
+
 
 ### 6.2 Monitoring and Troubleshooting
 
