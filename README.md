@@ -91,6 +91,75 @@ graph TD
 ```
 - *AWS deployment with ALB, EC2 instances, and Redis*
 - *Data flow diagrams for WebSocket messages and Redis pub/sub*
+```mermaid
+sequenceDiagram
+    %% Participants
+    participant Client1 as 👤 Client 1<br/>(Browser)
+    participant Client2 as 👤 Client 2<br/>(Browser)
+    participant LB as 🔄 Load Balancer<br/>Port 80
+    participant App1 as 🚀 App Server 1<br/>Port 8001
+    participant App2 as 🚀 App Server 2<br/>Port 8002
+    participant Redis as 📊 Redis<br/>Port 6379
+
+    %% Client 1 Connection Flow
+    Client1 ->> LB: 1️⃣ WebSocket Connect
+    LB ->> App1: Route to App1
+    
+    %% Client 2 Connection Flow
+    Client2 ->> LB: 1️⃣ WebSocket Connect
+    LB ->> App2: Route to App2
+    
+    %% Client 1 Message Flow
+    Client1 ->> LB: 2️⃣ Send Chat Message
+    LB ->> App1: Forward Message
+    
+    %% Redis Pub/Sub
+    App1 ->> Redis: 3️⃣ PUBLISH chat_channel<br/>{"message": "Hello"}
+    Redis ->> App1: 4️⃣ Message Broadcast
+    Redis ->> App2: 4️⃣ Message Broadcast
+    
+    %% Client Message Delivery (through LB)
+    App1 ->> LB: 5️⃣ Forward to Client1
+    LB ->> Client1: Deliver Message
+    App2 ->> LB: 5️⃣ Forward to Client2
+    LB ->> Client2: Deliver Message
+    
+    %% Style
+    rect rgb(230, 230, 255)
+        Note over Client1,Client2: Chat Message Broadcasting
+    end
+
+    Note over Redis: SUBSCRIBE/PUBLISH<br/>Channel: chat_channel
+```
+- *Data flow diagram to demonstrate load balancing without sticky session/session affinity*
+```mermaid
+sequenceDiagram
+    participant Client as 👤 Client
+    participant LB as 🔄 Load Balancer
+    participant App1 as 🚀 App Server 1
+    participant App2 as 🚀 App Server 2
+    
+    %% First connection
+    Client ->> LB: 1️⃣ Connect & Create Todo
+    LB ->> App1: Route to App Server 1
+    Note over App1: Store Todo<br/>"Buy milk" in memory
+    App1 ->> LB: Return Todo List
+    LB ->> Client: Display Todo List
+    
+    %% Connection break
+    Note over Client: Connection breaks<br/>(refresh/reconnect)
+    
+    %% Second connection (no session affinity!)
+    Client ->> LB: 2️⃣ Reconnect & Get Todos
+    LB ->> App2: Route to different server!
+    Note over App2: No todos found in memory!
+    App2 ->> LB: Return Empty List
+    LB ->> Client: ❌ Todo "Buy milk" is lost!
+    
+    rect rgb(255, 230, 230)
+        Note over Client,App2: Without session affinity,<br/>todos are lost when client<br/>connects to a different server
+    end
+```
 - *Session affinity and load balancing strategy*
 
 ### 3.1 Local Architecture
