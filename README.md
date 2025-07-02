@@ -5,6 +5,7 @@
 ## 1. Introduction
 
 This tutorial demonstrates how to scale a real-time WebSocket application using FastAPI, Redis pub/sub, and AWS Application Load Balancer (ALB). We'll build a todo application with chat functionality that can handle multiple users across multiple server instances while maintaining real-time communication and session persistence.
+![image](https://github.com/user-attachments/assets/61a21455-dd7e-43ad-8c6d-04385353922f)
 
 The application features:
 - **WebSocket connections** for real-time chat and todo updates
