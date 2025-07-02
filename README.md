@@ -22,11 +22,11 @@ The application features:
    - Configure container networking and environment variables
    - Manage persistent data with volumes
 
-2. **AWS Infrastructure**
-   - Deploy EC2 instances across multiple availability zones
-   - Configure Application Load Balancer (ALB) for WebSocket traffic
-   - Set up security groups and VPC networking
-
+2. **Shared State with Redis**
+   - Configure Redis as a central message broker
+   - Implement pub/sub patterns for real-time communication
+   - Store client connection metadata across multiple servers
+   - Broadcast messages to all connected clients regardless of server
 
 3. **Infrastructure as Code (IaC)**
    - Use Pulumi to provision AWS resources programmatically
@@ -34,15 +34,20 @@ The application features:
    - Export and reference infrastructure outputs
 
 4. **WebSocket Scaling Patterns**
-   - Implement Redis pub/sub for cross-instance communication
+   - Implement Redis pub/sub for cross-instance message broadcasting
    - Handle session affinity and sticky sessions
    - Manage stateful connections in distributed systems
 
-5. **Application Architecture**
+5. **AWS Infrastructure**
+   - Deploy EC2 instances across multiple availability zones
+   - Configure Application Load Balancer (ALB) for WebSocket traffic
+   - Set up security groups and VPC networking
+
+6. **Application Architecture**
    - Design scalable real-time applications
    - Implement persistent client identification
    - Handle graceful failover and reconnection
-
+     
 ## 3. Architecture Overview
 
 
