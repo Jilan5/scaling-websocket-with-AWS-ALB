@@ -50,7 +50,7 @@ The application features:
 ![Uploading aws.drawio (1).svg…](https://github.com/Jilan5/scaling-websocket-with-AWS-ALB/blob/main/aws.drawio%20(1).svg)
 
 
-- *Local Docker Compose setup with nginx load balancer*
+- **Local Docker Compose setup with nginx load balancer**
 ```mermaid
 graph TD
     %% User and Browser
@@ -94,7 +94,7 @@ graph TD
 
 ```
 
-- *Data flow diagrams for WebSocket messages and Redis pub/sub*
+- **Data flow diagrams for WebSocket messages and Redis pub/sub**
 ```mermaid
 sequenceDiagram
     %% Participants
@@ -135,7 +135,7 @@ sequenceDiagram
 
     Note over Redis: SUBSCRIBE/PUBLISH<br/>Channel: chat_channel
 ```
-- *Data flow diagram to demonstrate load balancing without sticky session/session affinity*
+- **Data flow diagram to demonstrate load balancing without sticky session/session affinity**
 ```mermaid
 sequenceDiagram
     participant Client as 👤 Client
