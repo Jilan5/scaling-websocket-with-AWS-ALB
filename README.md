@@ -15,7 +15,7 @@ The application features:
 - **Session affinity** to maintain user connections to specific servers
 - **Horizontal scaling** across multiple EC2 instances
 
-## 2. Learning Objectives
+## 2. Objectives
 
 1. **Docker & Containerization**
    - Build and run multi-container applications with Docker Compose
