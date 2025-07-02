@@ -45,8 +45,50 @@ The application features:
 
 ## 3. Architecture Overview
 
-*[Space reserved for architectural diagrams showing:]*
+
 - *Local Docker Compose setup with nginx load balancer*
+```mermaid
+graph TD
+    %% User and Browser
+    U[👤 User] --> B[🌐 Browser<br/>localhost:80]
+    
+    %% Nginx Load Balancer
+    B --> N[🔄 Nginx Load Balancer<br/>Port 80<br/>Session Affinity]
+    
+    %% App Servers
+    N --> A1[🐳 App Server 1<br/>Port 8001<br/>INSTANCE_ID: app-server-1]
+    N --> A2[🐳 App Server 2<br/>Port 8002<br/>INSTANCE_ID: app-server-2]
+    
+    %% Redis Server
+    A1 --> R[📊 Redis Server<br/>Port 6379<br/>Pub/Sub Messages]
+    A2 --> R
+    
+    %% WebSocket Connections
+    A1 -.->|WebSocket| B
+    A2 -.->|WebSocket| B
+    
+    %% Docker Network
+    subgraph Docker["🐳 Docker Compose Network"]
+        N
+        A1
+        A2
+        R
+    end
+    
+    %% Styling
+    classDef userStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef loadBalancer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef appServer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef redis fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef docker fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#000
+    
+    class U,B userStyle
+    class N loadBalancer
+    class A1,A2 appServer
+    class R redis
+    class Docker docker
+
+```
 - *AWS deployment with ALB, EC2 instances, and Redis*
 - *Data flow diagrams for WebSocket messages and Redis pub/sub*
 - *Session affinity and load balancing strategy*
