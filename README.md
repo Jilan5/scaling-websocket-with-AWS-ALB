@@ -163,11 +163,7 @@ sequenceDiagram
         Note over Client,App2: Without session affinity,<br/>todos are lost when client<br/>connects to a different server
     end
 ```
-- *Session affinity and load balancing strategy*
 
-### 3.1 Local Architecture
-
-### 3.2 AWS Architecture
 
 
 ## 4. Local Development Setup
