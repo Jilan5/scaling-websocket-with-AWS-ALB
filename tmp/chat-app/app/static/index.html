@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Scaling Demo</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FastAPI WebSocket Scaling Demonstration</h1>
+            <div class="connection-info">
+                <div class="status-container">
+                    <span class="status-icon" id="status" class="status disconnected"></span>
+                    <span class="status-text">Disconnected</span>
+                </div>
+                <div id="instance-info">
+                    <span>Instance ID: </span>
+                    <span id="instance-id">Not connected</span>
+                </div>
+                <div id="connection-count">Connections: 0</div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="chat-container">
+                <h2>WebSocket Chat</h2>
+                <div id="chat-messages" class="messages"></div>
+                
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="Type a message..." disabled>
+                    <button id="send-button" disabled>Send</button>
+                    <button id="load-history-button" disabled>Load History</button>
+                </div>
+            </div>
+            
+            <div class="todo-container">
+                <h2>Personal Todo List</h2>
+                <div class="todo-input">
+                    <input type="text" id="todo-input" placeholder="Add a new todo..." disabled>
+                    <button id="add-todo-button" disabled>Add</button>
+                </div>
+                <div id="todo-list" class="todo-list"></div>
+            </div>
+            
+            <div class="control-panel">
+                <div class="connection-controls">
+                    <h3>Connection</h3>
+                    <button id="connect-button">Connect WebSocket</button>
+                    <button id="disconnect-button" disabled>Disconnect</button>
+                </div>
+                
+                <div class="tasks-container">
+                    <h3>Background Tasks</h3>
+                    <button id="start-task-button" disabled>Start Background Task</button>
+                    <div id="tasks" class="tasks-list"></div>
+                </div>
+                
+                <div class="demo-controls">
+                    <h3>Demo Controls</h3>
+                    <button id="simulate-failure" class="danger">Simulate Server Failure</button>
+                    <div class="checkbox-control">
+                        <input type="checkbox" id="sticky-sessions">
+                        <label for="sticky-sessions">Simulate Sticky Sessions</label>
+                        <small>(Will make new connections reuse client ID)</small>
+                    </div>
+                </div>
+                
+                <div class="instance-info">
+                    <h3>Instance Information</h3>
+                    <div id="instance-details">Not connected</div>
+                    <button id="refresh-instance-info">Refresh Info</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="metrics-panel">
+            <h2>Metrics</h2>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <h4>Messages Sent</h4>
+                    <div id="messages-sent" class="metric-value">0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Messages Received</h4>
+                    <div id="messages-received" class="metric-value">0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Tasks Created</h4>
+                    <div id="tasks-created" class="metric-value">0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Tasks Completed</h4>
+                    <div id="tasks-completed" class="metric-value">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>WebSocket Scaling Demo - View metrics at <a href="/metrics" target="_blank">/metrics</a></p>
+        </footer>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>

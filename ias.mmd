@@ -1,0 +1,55 @@
+flowchart TB
+    Internet((Internet)) --> IGW[Internet Gateway]
+    
+    subgraph VPC["🌐 VPC (10.0.0.0/16)"]
+        IGW --> ALB[🔄 Application Load Balancer]
+        ALB --> TG[🎯 Target Group<br/>HTTP:8000<br/>Health Check: /]
+        
+        subgraph AZ1["📍 Availability Zone 1"]
+            SubnetA["🌐 Public Subnet A<br/>10.0.1.0/24"]
+            CS1["💻 Chat Server 1<br/>Ubuntu 20.04<br/>t2.micro<br/>Port: 8000"]
+            Redis["🗄️ Redis Server<br/>Docker Container<br/>Port: 6379<br/>Persistence: Yes"]
+        end
+        
+        subgraph AZ2["📍 Availability Zone 2"]
+            SubnetB["🌐 Public Subnet B<br/>10.0.2.0/24"]
+            CS2["💻 Chat Server 2<br/>Ubuntu 20.04<br/>t2.micro<br/>Port: 8000"]
+        end
+        
+        RT[🗺️ Route Table<br/>0.0.0.0/0 → IGW] --> SubnetA
+        RT --> SubnetB
+        IGW --> RT
+        
+        TG --> CS1
+        TG --> CS2
+        CS1 -.->|"Redis Pub/Sub<br/>Port 6379"| Redis
+        CS2 -.->|"Redis Pub/Sub<br/>Port 6379"| Redis
+        
+        SubnetA -.- CS1
+        SubnetA -.- Redis
+        SubnetB -.- CS2
+        
+        CSG["🛡️ Chat Security Group<br/>Inbound:<br/>• SSH (22)<br/>• HTTP (80)<br/>• HTTPS (443)<br/>• App (8000)<br/>• ICMP"] -..- CS1
+        CSG -..- CS2
+        CSG -..- ALB
+        
+        RSG["🔒 Redis Security Group<br/>Inbound:<br/>• SSH (22)<br/>• Redis (6379) from Chat SG"] -..- Redis
+    end
+    
+    classDef internetNode fill:#ff9999,stroke:#cc0000,stroke-width:3px,color:#000
+    classDef vpcNode fill:#e6f3ff,stroke:#0066cc,stroke-width:2px,color:#000
+    classDef az1Node fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef az2Node fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef computeNode fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef networkNode fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef securityNode fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#000
+    classDef storageNode fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    
+    class Internet internetNode
+    class VPC vpcNode
+    class AZ1 az1Node
+    class AZ2 az2Node
+    class CS1,CS2 computeNode
+    class IGW,ALB,TG,RT,SubnetA,SubnetB networkNode
+    class CSG,RSG securityNode
+    class Redis storageNode

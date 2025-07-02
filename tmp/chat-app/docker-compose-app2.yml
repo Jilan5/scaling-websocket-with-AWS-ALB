@@ -1,0 +1,23 @@
+# docker-compose-app.yml (for both app servers)
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8000"  # Expose on port 80 for ALB
+    environment:
+      - REDIS_HOST=10.0.1.13 # Private IP of Redis EC2
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - DEBUG=false
+      - INSTANCE_ID=aws-app-2   # Change to aws-app-2 for second server
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,95 @@
+
+
+services:
+  # App Server 1
+  app-server-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - DEBUG=true
+      - INSTANCE_ID=app-server-001
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - websocket-network
+    # volumes:
+    #   - ./app:/app  # For development only
+
+  # App Server 2
+  app-server-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - DEBUG=true
+      - INSTANCE_ID=app-server-002
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - websocket-network
+    # volumes:
+    #   - ./app:/app  # For development only
+
+  # Nginx Load Balancer with Session Affinity
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app-server-1
+      - app-server-2
+    restart: unless-stopped
+    networks:
+      - websocket-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - websocket-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Commander for Redis management UI (optional, for development)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - websocket-network
+    restart: unless-stopped
+
+networks:
+  websocket-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
