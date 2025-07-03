@@ -89,13 +89,22 @@ graph TD
     classDef loadBalancer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
     classDef appServer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
     classDef redis fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
-    classDef docker fill:none,stroke:#0db7ed,stroke-width:3px,color:#fff
+    classDef docker fill:#e3f2fd,stroke:#0db7ed,stroke-width:3px,color:#000
     
     class U,B userStyle
     class N loadBalancer
     class A1,A2 appServer
     class R redis
     class Docker docker
+    
+    linkStyle 0 stroke:#1976d2,stroke-width:4px
+    linkStyle 1 stroke:#1976d2,stroke-width:4px
+    linkStyle 2 stroke:#1976d2,stroke-width:4px
+    linkStyle 3 stroke:#1976d2,stroke-width:4px
+    linkStyle 4 stroke:#1976d2,stroke-width:4px
+    linkStyle 5 stroke:#1976d2,stroke-width:4px
+    linkStyle 6 stroke:#1976d2,stroke-width:3px
+    linkStyle 7 stroke:#1976d2,stroke-width:3px
 
 ```
 - **✅ With Sticky Sessions: Todos persist per client**
