@@ -5,12 +5,11 @@
 ## 1. Introduction
 
 This tutorial demonstrates how to scale a real-time WebSocket application using FastAPI, Redis pub/sub, and AWS Application Load Balancer (ALB). We'll build a todo application with chat functionality that can handle multiple users across multiple server instances while maintaining real-time communication and session persistence.
-![image](https://github.com/user-attachments/assets/899bdbef-ad21-494d-aee4-1fd74b6a38c5)
+![image](https://github.com/user-attachments/assets/496700a4-b8f9-4e30-8347-2aa16de18324)
 
 
 The application features:
 - **WebSocket connections** for real-time chat and todo updates
-- **Per-user todo lists** stored in memory with persistent client IDs
 - **Redis pub/sub** for cross-instance message broadcasting
 - **Session affinity** to maintain user connections to specific servers
 - **Horizontal scaling** across multiple EC2 instances
@@ -507,22 +506,18 @@ http://<ALB_DNS_NAME>
 
 ## 6. Verification and Testing
 
-### 6.1 Application Features to Test
+### 6 Application Features to Test
 
-1. **Todo Functionality:**
-   - Create todos in different browser sessions
-   - Verify todos persist per client ID
-   - Test todo operations (add, complete, delete)
-![Screenshot from 2025-07-02 13-48-36](https://github.com/user-attachments/assets/a0c7adf7-5985-47f2-833d-7f594dbf2262)
 
-2. **Chat Functionality:**
+**Chat Functionality:**
    - Send messages from multiple clients
    - Verify real-time message broadcasting
    - Test with clients connected to different servers
-![Screenshot from 2025-07-02 13-46-21](https://github.com/user-attachments/assets/31b19f44-59b2-42f6-8775-9ab8b8d63eef)
-![Screenshot from 2025-07-02 13-46-33](https://github.com/user-attachments/assets/de21b197-42a2-43df-a643-f67977db4ce1)
-![Screenshot from 2025-07-02 13-46-54](https://github.com/user-attachments/assets/9033f40c-ac69-40bf-8c34-2266a91b684c)
-![Screenshot from 2025-07-02 13-47-17](https://github.com/user-attachments/assets/fa720e44-6003-4271-87fd-aa27f4085688)
+![Screenshot from 2025-07-08 18-20-14](https://github.com/user-attachments/assets/df927502-e5e4-4b52-a0fd-0fefe299e56c)
+![Screenshot from 2025-07-08 18-20-03](https://github.com/user-attachments/assets/c5e2e045-2847-4b39-839d-0bb74ae05e79)
+![Screenshot from 2025-07-08 18-19-41](https://github.com/user-attachments/assets/344d2cf5-a875-4b87-9cd4-d6605c2737f4)
+![Screenshot from 2025-07-08 18-19-34](https://github.com/user-attachments/assets/60ea65d6-38d9-4340-89c2-fcf7442b31bd)
+
 
 
 
