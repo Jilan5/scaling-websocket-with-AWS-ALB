@@ -494,7 +494,6 @@ http://<ALB_DNS_NAME>
 
 3. **Scaling Behavior:**
    - Monitor which server handles each request
-![Screenshot from 2025-07-02 13-49-24](https://github.com/user-attachments/assets/90e3b66a-fdf8-43fd-9a25-b53b4d09435b)
    - Verify session affinity works correctly
    - Test reconnection behavior
 
