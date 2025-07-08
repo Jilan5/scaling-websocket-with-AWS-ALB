@@ -5,28 +5,27 @@
 ## 1. Introduction
 
 This tutorial demonstrates how to scale a real-time WebSocket application using FastAPI, Redis pub/sub, and AWS Application Load Balancer (ALB). We'll build a todo application with chat functionality that can handle multiple users across multiple server instances while maintaining real-time communication and session persistence.
-![image](https://github.com/user-attachments/assets/899bdbef-ad21-494d-aee4-1fd74b6a38c5)
+![image](https://github.com/user-attachments/assets/496700a4-b8f9-4e30-8347-2aa16de18324)
 
 
 The application features:
 - **WebSocket connections** for real-time chat and todo updates
-- **Per-user todo lists** stored in memory with persistent client IDs
 - **Redis pub/sub** for cross-instance message broadcasting
 - **Session affinity** to maintain user connections to specific servers
 - **Horizontal scaling** across multiple EC2 instances
 
-## 2. Learning Objectives
+## 2. Objectives
 
 1. **Docker & Containerization**
    - Build and run multi-container applications with Docker Compose
    - Configure container networking and environment variables
    - Manage persistent data with volumes
 
-2. **AWS Infrastructure**
-   - Deploy EC2 instances across multiple availability zones
-   - Configure Application Load Balancer (ALB) for WebSocket traffic
-   - Set up security groups and VPC networking
-
+2. **Shared State with Redis**
+   - Configure Redis as a central message broker
+   - Implement pub/sub patterns for real-time communication
+   - Store client connection metadata across multiple servers
+   - Broadcast messages to all connected clients regardless of server
 
 3. **Infrastructure as Code (IaC)**
    - Use Pulumi to provision AWS resources programmatically
@@ -34,26 +33,204 @@ The application features:
    - Export and reference infrastructure outputs
 
 4. **WebSocket Scaling Patterns**
-   - Implement Redis pub/sub for cross-instance communication
+   - Implement Redis pub/sub for cross-instance message broadcasting
    - Handle session affinity and sticky sessions
    - Manage stateful connections in distributed systems
 
-5. **Application Architecture**
+5. **AWS Infrastructure**
+   - Deploy EC2 instances across multiple availability zones
+   - Configure Application Load Balancer (ALB) for WebSocket traffic
+   - Set up security groups and VPC networking
+
+6. **Application Architecture**
    - Design scalable real-time applications
    - Implement persistent client identification
    - Handle graceful failover and reconnection
-
+     
 ## 3. Architecture Overview
 
-*[Space reserved for architectural diagrams showing:]*
-- *Local Docker Compose setup with nginx load balancer*
-- *AWS deployment with ALB, EC2 instances, and Redis*
-- *Data flow diagrams for WebSocket messages and Redis pub/sub*
-- *Session affinity and load balancing strategy*
 
-### 3.1 Local Architecture
+- **AWS deployment with ALB, EC2 instances, and Redis**
+![Uploading aws.drawio (1).svg…](https://github.com/Jilan5/scaling-websocket-with-AWS-ALB/blob/main/aws.drawio%20(1).svg)
 
-### 3.2 AWS Architecture
+
+- **Local Docker Compose setup with nginx load balancer**
+```mermaid
+graph TD
+    %% User and Browser
+    U[👤 User] --> B[🌐 Browser<br/>localhost:80]
+    
+    %% Nginx Load Balancer
+    B --> N[🔄 Nginx Load Balancer<br/>Port 80<br/>Session Affinity]
+    
+    %% App Servers
+    N --> A1[🐳 App Server 1<br/>Port 8001<br/>INSTANCE_ID: app-server-1]
+    N --> A2[🐳 App Server 2<br/>Port 8002<br/>INSTANCE_ID: app-server-2]
+    
+    %% Redis Server
+    A1 --> R[📊 Redis Server<br/>Port 6379<br/>Pub/Sub Messages]
+    A2 --> R
+    
+    %% WebSocket Connections
+    A1 -.->|WebSocket| B
+    A2 -.->|WebSocket| B
+    
+    %% Docker Network
+    subgraph Docker["🐳 Docker Compose Network"]
+        N
+        A1
+        A2
+        R
+    end
+    
+    %% Styling
+    classDef userStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef loadBalancer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef appServer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef redis fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef docker fill:#e3f2fd,stroke:#0db7ed,stroke-width:3px,color:#000
+    
+    class U,B userStyle
+    class N loadBalancer
+    class A1,A2 appServer
+    class R redis
+    class Docker docker
+    
+    linkStyle 0 stroke:#1976d2,stroke-width:4px
+    linkStyle 1 stroke:#1976d2,stroke-width:4px
+    linkStyle 2 stroke:#1976d2,stroke-width:4px
+    linkStyle 3 stroke:#1976d2,stroke-width:4px
+    linkStyle 4 stroke:#1976d2,stroke-width:4px
+    linkStyle 5 stroke:#1976d2,stroke-width:4px
+    linkStyle 6 stroke:#1976d2,stroke-width:3px
+    linkStyle 7 stroke:#1976d2,stroke-width:3px
+
+```
+- **✅ With Sticky Sessions: Todos persist per client**
+```mermaid
+flowchart TD
+    C1[👤 Client 1] --> ALB[🔄 Application Load Balancer<br/>WITH Sticky Sessions]
+    C2[👤 Client 2] --> ALB
+    
+    ALB -->|Always routes<br/>Client 1| A1[🚀 App Server 1<br/>]
+    ALB -->|Always routes<br/>Client 2| A2[🚀 App Server 2<br/>]
+    
+    A1 --> R[📊 Redis<br/>✅ Chat Messages]
+    A2 --> R
+    
+    subgraph AWS["☁️ AWS Cloud"]
+        ALB
+        A1
+        A2
+        R
+    end
+    
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef alb fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef server fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef redis fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef aws fill:#fff9c4,stroke:#f9a825,stroke-width:3px,color:#000
+    
+    class C1,C2 client
+    class ALB alb
+    class A1,A2 server
+    class R redis
+    class AWS aws
+    
+    linkStyle 0 stroke:#1976d2,stroke-width:4px
+    linkStyle 1 stroke:#1976d2,stroke-width:4px
+    linkStyle 2 stroke:#1976d2,stroke-width:4px
+    linkStyle 3 stroke:#1976d2,stroke-width:4px
+    linkStyle 4 stroke:#1976d2,stroke-width:4px
+    linkStyle 5 stroke:#1976d2,stroke-width:4px
+```
+
+
+- **❌ Without Sticky Sessions: **
+```mermaid
+flowchart TD
+    SC[👤 Same Client] --> ALBRR[🔄 Application Load Balancer<br/>WITHOUT Sticky Sessions]
+    
+    ALBRR -->|1st Request| AS1[🚀 App Server 1<br/>]
+    ALBRR -->|2nd Request| AS2[🚀 App Server 2<br/>]
+    ALBRR -->|3rd Request| AS1
+    
+    AS1 --> RR[📊 Redis<br/>✅ Chat still works]
+    AS2 --> RR
+    
+    subgraph AWSRR["☁️ AWS Cloud - Round Robin"]
+        ALBRR
+        AS1
+        AS2
+        RR
+    end
+    
+    classDef client fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef alb fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef server1 fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef server2 fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef redis fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef aws fill:#ffebee,stroke:#d32f2f,stroke-width:3px,color:#000
+    
+    class SC client
+    class ALBRR alb
+    class AS1 server1
+    class AS2 server2
+    class RR redis
+    class AWSRR aws
+    
+    linkStyle 0 stroke:#1976d2,stroke-width:4px
+    linkStyle 1 stroke:#1976d2,stroke-width:4px
+    linkStyle 2 stroke:#1976d2,stroke-width:4px
+    linkStyle 3 stroke:#1976d2,stroke-width:4px
+    linkStyle 4 stroke:#1976d2,stroke-width:4px
+    linkStyle 5 stroke:#1976d2,stroke-width:4px
+```
+
+
+
+- **Data flow diagrams for WebSocket messages and Redis pub/sub**
+```mermaid
+sequenceDiagram
+    %% Participants
+    participant Client1 as 👤 Client 1<br/>(Browser)
+    participant Client2 as 👤 Client 2<br/>(Browser)
+    participant LB as 🔄 Load Balancer<br/>Port 80
+    participant App1 as 🚀 App Server 1<br/>Port 8001
+    participant App2 as 🚀 App Server 2<br/>Port 8002
+    participant Redis as 📊 Redis<br/>Port 6379
+
+    %% Client 1 Connection Flow
+    Client1 ->> LB: 1️⃣ WebSocket Connect
+    LB ->> App1: Route to App1
+    
+    %% Client 2 Connection Flow
+    Client2 ->> LB: 1️⃣ WebSocket Connect
+    LB ->> App2: Route to App2
+    
+    %% Client 1 Message Flow
+    Client1 ->> LB: 2️⃣ Send Chat Message
+    LB ->> App1: Forward Message
+    
+    %% Redis Pub/Sub
+    App1 ->> Redis: 3️⃣ PUBLISH chat_channel<br/>{"message": "Hello"}
+    Redis ->> App1: 4️⃣ Message Broadcast
+    Redis ->> App2: 4️⃣ Message Broadcast
+    
+    %% Client Message Delivery (through LB)
+    App1 ->> LB: 5️⃣ Forward to Client1
+    LB ->> Client1: Deliver Message
+    App2 ->> LB: 5️⃣ Forward to Client2
+    LB ->> Client2: Deliver Message
+    
+    %% Style
+    rect rgb(230, 230, 255)
+        Note over Client1,Client2: Chat Message Broadcasting
+    end
+
+    Note over Redis: SUBSCRIBE/PUBLISH<br/>Channel: chat_channel
+```
+
 
 
 ## 4. Local Development Setup
@@ -300,28 +477,23 @@ http://<ALB_DNS_NAME>
 
 ## 6. Verification and Testing
 
-### 6.1 Application Features to Test
+### 6 Application Features to Test
 
-1. **Todo Functionality:**
-   - Create todos in different browser sessions
-   - Verify todos persist per client ID
-   - Test todo operations (add, complete, delete)
-![Screenshot from 2025-07-02 13-48-36](https://github.com/user-attachments/assets/a0c7adf7-5985-47f2-833d-7f594dbf2262)
 
-2. **Chat Functionality:**
+**Chat Functionality:**
    - Send messages from multiple clients
    - Verify real-time message broadcasting
    - Test with clients connected to different servers
-![Screenshot from 2025-07-02 13-46-21](https://github.com/user-attachments/assets/31b19f44-59b2-42f6-8775-9ab8b8d63eef)
-![Screenshot from 2025-07-02 13-46-33](https://github.com/user-attachments/assets/de21b197-42a2-43df-a643-f67977db4ce1)
-![Screenshot from 2025-07-02 13-46-54](https://github.com/user-attachments/assets/9033f40c-ac69-40bf-8c34-2266a91b684c)
-![Screenshot from 2025-07-02 13-47-17](https://github.com/user-attachments/assets/fa720e44-6003-4271-87fd-aa27f4085688)
+![Screenshot from 2025-07-08 18-20-14](https://github.com/user-attachments/assets/df927502-e5e4-4b52-a0fd-0fefe299e56c)
+![Screenshot from 2025-07-08 18-20-03](https://github.com/user-attachments/assets/c5e2e045-2847-4b39-839d-0bb74ae05e79)
+![Screenshot from 2025-07-08 18-19-41](https://github.com/user-attachments/assets/344d2cf5-a875-4b87-9cd4-d6605c2737f4)
+![Screenshot from 2025-07-08 18-19-34](https://github.com/user-attachments/assets/60ea65d6-38d9-4340-89c2-fcf7442b31bd)
+
 
 
 
 3. **Scaling Behavior:**
    - Monitor which server handles each request
-![Screenshot from 2025-07-02 13-49-24](https://github.com/user-attachments/assets/90e3b66a-fdf8-43fd-9a25-b53b4d09435b)
    - Verify session affinity works correctly
    - Test reconnection behavior
 
