@@ -112,8 +112,8 @@ flowchart TD
     C1[👤 Client 1] --> ALB[🔄 Application Load Balancer<br/>WITH Sticky Sessions]
     C2[👤 Client 2] --> ALB
     
-    ALB -->|Always routes<br/>Client 1| A1[🚀 App Server 1<br/>✅ Todos: Buy milk, Walk dog]
-    ALB -->|Always routes<br/>Client 2| A2[🚀 App Server 2<br/>✅ Todos: Study AWS, Code review]
+    ALB -->|Always routes<br/>Client 1| A1[🚀 App Server 1<br/>]
+    ALB -->|Always routes<br/>Client 2| A2[🚀 App Server 2<br/>]
     
     A1 --> R[📊 Redis<br/>✅ Chat Messages]
     A2 --> R
@@ -146,13 +146,13 @@ flowchart TD
 ```
 
 
-- **❌ Without Sticky Sessions: Todos are lost when switching servers**
+- **❌ Without Sticky Sessions: **
 ```mermaid
 flowchart TD
     SC[👤 Same Client] --> ALBRR[🔄 Application Load Balancer<br/>WITHOUT Sticky Sessions]
     
-    ALBRR -->|1st Request| AS1[🚀 App Server 1<br/>✅ Creates: Buy milk]
-    ALBRR -->|2nd Request| AS2[🚀 App Server 2<br/>❌ Empty todo list!]
+    ALBRR -->|1st Request| AS1[🚀 App Server 1<br/>]
+    ALBRR -->|2nd Request| AS2[🚀 App Server 2<br/>]
     ALBRR -->|3rd Request| AS1
     
     AS1 --> RR[📊 Redis<br/>✅ Chat still works]
@@ -229,35 +229,6 @@ sequenceDiagram
     end
 
     Note over Redis: SUBSCRIBE/PUBLISH<br/>Channel: chat_channel
-```
-- **Data flow diagram to demonstrate load balancing without sticky session/session affinity**
-```mermaid
-sequenceDiagram
-    participant Client as 👤 Client
-    participant LB as 🔄 Load Balancer
-    participant App1 as 🚀 App Server 1
-    participant App2 as 🚀 App Server 2
-    
-    %% First connection
-    Client ->> LB: 1️⃣ Connect & Create Todo
-    LB ->> App1: Route to App Server 1
-    Note over App1: Store Todo<br/>"Buy milk" in memory
-    App1 ->> LB: Return Todo List
-    LB ->> Client: Display Todo List
-    
-    %% Connection break
-    Note over Client: Connection breaks<br/>(refresh/reconnect)
-    
-    %% Second connection (no session affinity!)
-    Client ->> LB: 2️⃣ Reconnect & Get Todos
-    LB ->> App2: Route to different server!
-    Note over App2: No todos found in memory!
-    App2 ->> LB: Return Empty List
-    LB ->> Client: ❌ Todo "Buy milk" is lost!
-    
-    rect rgb(255, 230, 230)
-        Note over Client,App2: Without session affinity,<br/>todos are lost when client<br/>connects to a different server
-    end
 ```
 
 
