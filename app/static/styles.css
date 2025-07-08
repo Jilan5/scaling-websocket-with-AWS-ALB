@@ -90,19 +90,19 @@ header h1 {
 
 .main-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.chat-container, .todo-container, .control-panel {
+.chat-container, .control-panel {
     background: white;
     border-radius: 8px;
     padding: 1rem;
     box-shadow: var(--shadow);
 }
 
-.chat-container h2, .todo-container h2, .control-panel h3, .metrics-panel h2 {
+.chat-container h2, .control-panel h3, .metrics-panel h2 {
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border-color);
@@ -222,17 +222,7 @@ footer a:hover {
     overflow-y: auto;
 }
 
-.checkbox-control {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
 
-.checkbox-control small {
-    color: #777;
-    font-size: 0.8rem;
-}
 
 a {
     color: var(--primary-color);
@@ -241,103 +231,6 @@ a {
 
 a:hover {
     text-decoration: underline;
-}
-
-/* Todo List Styles */
-.todo-container h2 {
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--primary-color);
-}
-
-.todo-input {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.todo-input input {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.todo-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.todo-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: #fff;
-    transition: all 0.2s ease;
-}
-
-.todo-item:hover {
-    background-color: var(--light-bg);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.todo-item.completed {
-    opacity: 0.6;
-    background-color: #f8f9fa;
-}
-
-.todo-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.todo-text {
-    flex: 1;
-    padding: 0.25rem;
-    border: none;
-    background: transparent;
-    font-size: 0.9rem;
-    outline: none;
-    border-radius: 2px;
-    transition: background-color 0.2s ease;
-}
-
-.todo-text:focus {
-    background-color: var(--light-bg);
-}
-
-.todo-text.completed {
-    text-decoration: line-through;
-    color: #666;
-}
-
-.todo-actions {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.todo-delete {
-    background-color: var(--danger-color);
-    color: white;
-    border: none;
-    border-radius: 3px;
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
-}
-
-.todo-delete:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
 }
 
 /* Responsive Design */
@@ -359,37 +252,21 @@ a:hover {
     .connection-info {
         justify-content: center;
     }
-    
-    .chat-container,
-    .todo-container,
+     .chat-container,
     .control-panel {
         padding: 0.75rem;
     }
-    
+
     .messages {
         height: 300px;
     }
-    
-    .todo-list {
-        max-height: 300px;
-    }
-    
+
     .metrics-panel {
         margin-top: 1rem;
     }
-    
-    .metric-grid {
+     .metric-grid {
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
-    }
-    
-    .todo-item {
-        padding: 0.5rem;
-        gap: 0.25rem;
-    }
-    
-    .todo-text {
-        font-size: 0.8rem;
     }
 }
 
@@ -397,18 +274,8 @@ a:hover {
     .metric-grid {
         grid-template-columns: 1fr;
     }
-    
-    .chat-input,
-    .todo-input {
+     .chat-input {
         flex-direction: column;
         gap: 0.25rem;
-    }
-    
-    .todo-item {
-        flex-wrap: wrap;
-    }
-    
-    .todo-actions {
-        margin-left: auto;
     }
 }

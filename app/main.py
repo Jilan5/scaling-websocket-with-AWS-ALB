@@ -38,9 +38,7 @@ SYSTEM_CHANNEL = "system_messages"
 # Redis pub/sub client
 pubsub_redis = None
 
-# Todo storage - Dictionary to store todos per client
-# Structure: {client_id: {todo_id: {"id": str, "text": str, "completed": bool, "created_at": float}}}
-todo_storage: Dict[str, Dict[str, Dict[str, Any]]] = {}
+
 
 # Create FastAPI application
 app = FastAPI(
@@ -232,66 +230,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await publish_to_redis(CHAT_CHANNEL, message)
                 await publish_to_redis(CHAT_CHANNEL, message)  # Publish to Redis channel
                 
-            elif message_type == "todo_get":
-                # Send user's todos
-                user_todos = todo_storage.get(client_id, {})
-                todos_list = list(user_todos.values())
-                await manager.send_personal_message({
-                    "type": "todo_list",
-                    "todos": todos_list
-                }, client_id)
-                
-            elif message_type == "todo_add":
-                # Add new todo
-                todo_text = data.get("text", "").strip()
-                if todo_text:
-                    if client_id not in todo_storage:
-                        todo_storage[client_id] = {}
-                    
-                    todo_id = str(uuid.uuid4())
-                    todo_item = {
-                        "id": todo_id,
-                        "text": todo_text,
-                        "completed": False,
-                        "created_at": time.time()
-                    }
-                    todo_storage[client_id][todo_id] = todo_item
-                    
-                    await manager.send_personal_message({
-                        "type": "todo_added",
-                        "todo": todo_item
-                    }, client_id)
-                    
-            elif message_type == "todo_update":
-                # Update existing todo
-                todo_id = data.get("id")
-                if todo_id and client_id in todo_storage and todo_id in todo_storage[client_id]:
-                    todo_item = todo_storage[client_id][todo_id]
-                    
-                    # Update text if provided
-                    if "text" in data:
-                        todo_item["text"] = data["text"].strip()
-                    
-                    # Update completed status if provided
-                    if "completed" in data:
-                        todo_item["completed"] = bool(data["completed"])
-                    
-                    await manager.send_personal_message({
-                        "type": "todo_updated",
-                        "todo": todo_item
-                    }, client_id)
-                    
-            elif message_type == "todo_delete":
-                # Delete todo
-                todo_id = data.get("id")
-                if todo_id and client_id in todo_storage and todo_id in todo_storage[client_id]:
-                    del todo_storage[client_id][todo_id]
-                    
-                    await manager.send_personal_message({
-                        "type": "todo_deleted",
-                        "id": todo_id
-                    }, client_id)
-                
+
             elif message_type == "task_request":
                 # Handle background task request
                 task_id, task_info = await task_manager.create_task(client_id)
@@ -379,23 +318,7 @@ async def get_chat_history(request: Request, limit: int = 50, history_type: str 
         "history_type": history_type
     }
 
-# Simulate failure endpoint (for demonstration)
-@app.post("/simulate/failure")
-async def simulate_failure():
-    http_requests.labels(method="POST", endpoint="/simulate/failure", status_code=500).inc()
-    # Log the failure simulation
-    logger.warning("Simulating server failure")
-    
-    # Wait 1 second before "failing" to allow response to be sent
-    async def delayed_exit():
-        await asyncio.sleep(1)
-        import os
-        os._exit(1)
-    
-    # Schedule the exit
-    asyncio.create_task(delayed_exit())
-    
-    return {"status": "failure_simulated", "message": "Server will shut down in 1 second"}
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

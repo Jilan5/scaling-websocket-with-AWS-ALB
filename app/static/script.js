@@ -23,15 +23,10 @@ const connectButtonElement = document.getElementById('connect-button');
 const disconnectButtonElement = document.getElementById('disconnect-button');
 const startTaskButtonElement = document.getElementById('start-task-button');
 const tasksElement = document.getElementById('tasks');
-const simulateFailureButton = document.getElementById('simulate-failure');
-const stickySessionsCheckbox = document.getElementById('sticky-sessions');
 const instanceDetailsElement = document.getElementById('instance-details');
 const refreshInstanceInfoButton = document.getElementById('refresh-instance-info');
 
-// Todo elements
-const todoInputElement = document.getElementById('todo-input');
-const addTodoButtonElement = document.getElementById('add-todo-button');
-const todoListElement = document.getElementById('todo-list');
+
 
 // Metrics elements
 const messagesSentElement = document.getElementById('messages-sent');
@@ -163,22 +158,7 @@ function handleWebSocketMessage(data) {
             updateTaskInUI(data.task_id, data.details);
             break;
             
-        case 'todo_list':
-            renderTodoList(data.todos);
-            break;
-            
-        case 'todo_added':
-            addTodoToUI(data.todo);
-            break;
-            
-        case 'todo_updated':
-            updateTodoInUI(data.todo);
-            break;
-            
-        case 'todo_deleted':
-            removeTodoFromUI(data.id);
-            break;
-            
+
         default:
             console.log('Unknown message type:', data);
     }
@@ -209,12 +189,7 @@ function enableInterface() {
     loadHistoryButtonElement.disabled = false;
     disconnectButtonElement.disabled = false;
     startTaskButtonElement.disabled = false;
-    todoInputElement.disabled = false;
-    addTodoButtonElement.disabled = false;
     connectButtonElement.disabled = true;
-    
-    // Load todos when interface is enabled
-    loadTodos();
 }
 
 function disableInterface() {
@@ -223,8 +198,6 @@ function disableInterface() {
     loadHistoryButtonElement.disabled = true;
     disconnectButtonElement.disabled = true;
     startTaskButtonElement.disabled = true;
-    todoInputElement.disabled = true;
-    addTodoButtonElement.disabled = true;
     connectButtonElement.disabled = false;
 }
 
@@ -411,15 +384,7 @@ function startBackgroundTask() {
     }
 }
 
-async function simulateFailure() {
-    try {
-        await fetch('/simulate/failure', { method: 'POST' });
-        addSystemMessage('Server failure simulation initiated...');
-    } catch (error) {
-        console.error('Error simulating failure:', error);
-        addSystemMessage('Failed to simulate server failure');
-    }
-}
+
 
 function refreshInstanceInfo() {
     fetchInstanceInfo();
@@ -436,146 +401,11 @@ messageInputElement.addEventListener('keypress', (e) => {
 });
 loadHistoryButtonElement.addEventListener('click', loadHistory);
 startTaskButtonElement.addEventListener('click', startBackgroundTask);
-simulateFailureButton.addEventListener('click', simulateFailure);
-stickySessionsCheckbox.addEventListener('change', () => {
-    if (!stickySessionsCheckbox.checked) {
-        localStorage.removeItem('clientId');
-    }
-});
 refreshInstanceInfoButton.addEventListener('click', refreshInstanceInfo);
 
-// Todo event listeners
-addTodoButtonElement.addEventListener('click', addTodo);
-todoInputElement.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        addTodo();
-    }
-});
 
-// Todo Functions
-function loadTodos() {
-    console.log('Loading todos...'); // Debug log
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: 'todo_get'
-        }));
-        console.log('Todo get request sent'); // Debug log
-    } else {
-        console.log('Cannot load todos - socket state:', socket?.readyState); // Debug log
-    }
-}
 
-function addTodo() {
-    const todoText = todoInputElement.value.trim();
-    console.log('Adding todo:', todoText); // Debug log
-    if (todoText && socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: 'todo_add',
-            text: todoText
-        }));
-        todoInputElement.value = '';
-        console.log('Todo add request sent'); // Debug log
-    } else {
-        console.log('Cannot add todo - socket state:', socket?.readyState, 'text:', todoText); // Debug log
-    }
-}
 
-function updateTodo(todoId, updates) {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: 'todo_update',
-            id: todoId,
-            ...updates
-        }));
-    }
-}
-
-function deleteTodo(todoId) {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: 'todo_delete',
-            id: todoId
-        }));
-    }
-}
-
-function renderTodoList(todos) {
-    todoListElement.innerHTML = '';
-    
-    // Sort todos: incomplete first, then by creation date
-    todos.sort((a, b) => {
-        if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1;
-        }
-        return b.created_at - a.created_at;
-    });
-    
-    todos.forEach(todo => {
-        addTodoToUI(todo);
-    });
-}
-
-function addTodoToUI(todo) {
-    const todoElement = document.createElement('div');
-    todoElement.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-    todoElement.dataset.todoId = todo.id;
-    
-    todoElement.innerHTML = `
-        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
-        <input type="text" class="todo-text ${todo.completed ? 'completed' : ''}" value="${todo.text}">
-        <div class="todo-actions">
-            <button class="todo-delete">Delete</button>
-        </div>
-    `;
-    
-    // Add event listeners
-    const checkbox = todoElement.querySelector('.todo-checkbox');
-    const textInput = todoElement.querySelector('.todo-text');
-    const deleteButton = todoElement.querySelector('.todo-delete');
-    
-    checkbox.addEventListener('change', () => {
-        updateTodo(todo.id, { completed: checkbox.checked });
-    });
-    
-    textInput.addEventListener('blur', () => {
-        if (textInput.value.trim() !== todo.text) {
-            updateTodo(todo.id, { text: textInput.value.trim() });
-        }
-    });
-    
-    textInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            textInput.blur();
-        }
-    });
-    
-    deleteButton.addEventListener('click', () => {
-        deleteTodo(todo.id);
-    });
-    
-    todoListElement.appendChild(todoElement);
-}
-
-function updateTodoInUI(todo) {
-    const todoElement = todoListElement.querySelector(`[data-todo-id="${todo.id}"]`);
-    if (todoElement) {
-        const checkbox = todoElement.querySelector('.todo-checkbox');
-        const textInput = todoElement.querySelector('.todo-text');
-        
-        checkbox.checked = todo.completed;
-        textInput.value = todo.text;
-        
-        todoElement.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-        textInput.className = `todo-text ${todo.completed ? 'completed' : ''}`;
-    }
-}
-
-function removeTodoFromUI(todoId) {
-    const todoElement = todoListElement.querySelector(`[data-todo-id="${todoId}"]`);
-    if (todoElement) {
-        todoElement.remove();
-    }
-}
 
 // Add additional CSS styles for instance changes and task statuses
 const style = document.createElement('style');
@@ -658,55 +488,6 @@ style.textContent = `
     
     .task.instance-mismatch {
         border: 2px solid var(--warning-color);
-    }
-    
-    .todo-item {
-        display: flex;
-        align-items: center;
-        padding: 8px;
-        margin-bottom: 8px;
-        border-radius: 4px;
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-    }
-    
-    .todo-item.completed {
-        background-color: #d4edda;
-    }
-    
-    .todo-checkbox {
-        margin-right: 10px;
-    }
-    
-    .todo-text {
-        flex: 1;
-        border: none;
-        background: none;
-        outline: none;
-        font-size: 1em;
-    }
-    
-    .todo-text.completed {
-        text-decoration: line-through;
-        color: #888;
-    }
-    
-    .todo-actions {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .todo-delete {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .todo-delete:hover {
-        background-color: #c82333;
     }
 `;
 document.head.appendChild(style);
